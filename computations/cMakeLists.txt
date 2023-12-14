@@ -1,0 +1,18 @@
+cmake_minimum_required(VERSION 3.10)
+
+project(GraphGenerator)
+
+
+
+set(SOURCE_FILES
+    Graph.cpp
+    GraphGeneration.cpp
+    main.cpp
+)
+
+set(HEADER_FILES
+    Graph.h
+    GraphGeneration.h
+)
+
+add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${HEADER_FILES})
