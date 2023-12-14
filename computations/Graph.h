@@ -26,6 +26,12 @@ class Graph {
         //Create a pixel image
         void generateBpm(const std::string& filename);
 
+        //Get the adjacency matrix
+        std::vector<std::vector<bool>> get_matrix();
+        
+        // output the current adjaceny matrix into a txt file
+        void output_adjaceny_matrix(const std::string& filename);
+
     protected:
         int numNodes;
         std::vector<std::vector<bool>> adjacencyMatrix;

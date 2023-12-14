@@ -73,7 +73,31 @@ void Graph::generateBpm(const std::string& filename) {
     }
 
     pbmFile.close();
-
-
 }
 
+
+std::vector<std::vector<bool>> Graph::get_matrix() {
+
+    return this->adjacencyMatrix;
+}
+
+void Graph::output_adjaceny_matrix(const std::string& filename) {
+    std::ofstream txtfile(filename);
+
+    if (!txtfile.is_open()) {
+        std::cerr << "Error in opening the file: " << filename << std::endl;
+        return;
+    }
+
+
+    for (const auto& row : this->adjacencyMatrix) {
+        for (bool value : row) {
+           
+            txtfile << value << " ";
+        }
+        txtfile << "\n";  
+    }
+
+    txtfile.close();
+    std::cout << "Adjacency matrix written to " << filename << std::endl;
+}
