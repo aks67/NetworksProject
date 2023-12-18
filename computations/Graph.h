@@ -32,6 +32,21 @@ class Graph {
         // output the current adjaceny matrix into a txt file
         void output_adjaceny_matrix(const std::string& filename);
 
+
+        //serialse
+        void serialse(const std::string& filename);
+
+        //Deserialise 
+        void deserialise(const std::string& filename);
+
+
+        //Run Length Encoding
+        void serialseRle(const std::string& filename);
+
+
+        //Run length Decoding
+        void deserialiseRLE(const std::string& filename);
+
     protected:
         int numNodes;
         std::vector<std::vector<bool>> adjacencyMatrix;

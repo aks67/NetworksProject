@@ -16,7 +16,6 @@ ErdosRenyiGraph::ErdosRenyiGraph(int numNodes, double probability)
 }
 
 
-
 NewmanConfigModel::NewmanConfigModel(int numNodes, int numEdges)
     : Graph(numNodes), numEdges(numEdges) {
         
