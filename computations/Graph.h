@@ -26,6 +26,10 @@ class Graph {
         //Create a pixel image
         void generateBpm(const std::string& filename);
 
+        //Create a compressed pixel image with grouped nodes, it would still give an approximate picture
+        void generateCompressedBpm(const std::string& filename); 
+
+
         //Get the adjacency matrix
         std::vector<std::vector<bool>> get_matrix();
         
@@ -39,13 +43,12 @@ class Graph {
         //Deserialise 
         void deserialise(const std::string& filename);
 
-
         //Run Length Encoding
         void serialseRle(const std::string& filename);
 
-
         //Run length Decoding
         void deserialiseRLE(const std::string& filename);
+
 
     protected:
         int numNodes;

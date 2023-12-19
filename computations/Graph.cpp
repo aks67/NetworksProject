@@ -76,6 +76,38 @@ void Graph::generateBpm(const std::string& filename) {
 }
 
 
+void Graph::generateCompressedBpm(const std::string& filename) {
+
+    std::ofstream pbmFile(filename);
+
+    if (!pbmFile.is_open()) {
+        std::cout << "Error in openening the file" << std::endl;
+    }
+
+    pbmFile << "P1\n";
+    pbmFile << this->numNodes << " " << this->numNodes << "\n";
+
+    for (int i = 0; i < this->numNodes; i++) {
+        int count = 0;
+        char currPixel = ' ';
+
+        for (int j = 0; j < this->numNodes; j++) {
+            if (this->adjacencyMatrix[i][j] == (currPixel == '1')) {
+                count++;
+            } else {
+                pbmFile << count << currPixel << " ";
+                count = 1;
+                currPixel = (adjacencyMatrix[i][j] ? '1' : '0');
+            }
+        }
+
+        pbmFile << count << currPixel << " \n";
+    }
+
+    pbmFile.close();
+
+}
+
 std::vector<std::vector<bool>> Graph::get_matrix() {
 
     return this->adjacencyMatrix;

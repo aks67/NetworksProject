@@ -44,3 +44,48 @@ void NewmanConfigModel::createEdges() {
         }
     } 
 }
+
+
+
+WattsStrogatzGraph::WattsStrogatzGraph(int numNodes, int k, double beta) 
+    : Graph(numNodes), k(k), beta(beta) {
+        
+        this->createRingLattice();
+        this->rewireEdges();
+    }
+
+
+void WattsStrogatzGraph::createRingLattice() {
+
+    int numNodes = this->numNodes;
+    int k = this->k;
+
+    for (int i = 0; i < numNodes; i++) {
+        for (int j = 1; j < k /2; j++) {
+            int neighbour = (i + j) % numNodes;
+            this->addEdges(i, neighbour);
+        }
+    }
+}
+
+
+void WattsStrogatzGraph::rewireEdges() {
+    double beta = this->beta;
+    int numNodes = this->numNodes;
+    int k = this->k;
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<double> dis(0.0, 1.0);
+
+
+    for (int i = 0; i < numNodes; i++) {
+        for (int j = 1; j < i + 1  + k/2; j++) {
+            if (dis(gen) < beta) {
+                int newNeighbour = j % numNodes;
+                this->removeEdges(i, (i + j) % numNodes);
+                this->addEdges(i, newNeighbour);
+            }
+        }
+    }
+
+}

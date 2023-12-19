@@ -32,3 +32,23 @@ class NewmanConfigModel : public Graph {
         void createEdges();
         void setNumEdges(int numEdges);
 };
+
+
+/*
+    WattsStrogatzGraph to generate large graphs with clusterings
+    For Mimicking real world graphs
+*/
+class WattsStrogatzGraph : public Graph {
+
+    public:
+        
+        WattsStrogatzGraph(int numNodes, int k, double beta);
+
+    private:
+        int k;
+        double beta;
+        void createRingLattice();
+        void rewireEdges();
+
+
+};
