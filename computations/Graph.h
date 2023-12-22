@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <fstream>
-
 class Graph {
     
     public:
@@ -49,9 +48,16 @@ class Graph {
         //Run length Decoding
         void deserialiseRLE(const std::string& filename);
 
+        //Get node Degree
+        int getDegree(int node);
 
+        //destrcutor
+        ~Graph() {
+            delete[] node_degrees;
+        }
     protected:
         int numNodes;
+        int* node_degrees;
         std::vector<std::vector<bool>> adjacencyMatrix;
 };
 

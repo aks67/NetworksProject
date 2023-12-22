@@ -2,7 +2,7 @@
 #include <iostream>
 #include <thread>
 
-Graph::Graph(int numNodes) : numNodes(numNodes) {
+Graph::Graph(int numNodes) : numNodes(numNodes),  node_degrees(new int[numNodes]()) {
     adjacencyMatrix.resize(numNodes, std::vector<bool>(numNodes, false));
 }
 
@@ -12,12 +12,14 @@ bool Graph::addEdges(int u, int v) {
     if (( u >= 0 && u < numNodes) && (v >= 0 && v < numNodes)) {
         adjacencyMatrix[u][v] = true;
         adjacencyMatrix[v][u] = true;
+
+        node_degrees[u]++;
+        node_degrees[v]++;
         return true;
     }
 
     return false;
 }
-
 
 bool Graph::removeEdges(int u, int v) {
 
@@ -30,6 +32,10 @@ bool Graph::removeEdges(int u, int v) {
     return false;
 }
 
+
+int Graph::getDegree(int node) {
+    return this->node_degrees[node];
+}
 
 void Graph::printMatrixToTerminal() {
     
@@ -67,14 +73,13 @@ void Graph::generateBpm(const std::string& filename) {
 
     for (int i = 0; i < numNodes; ++i) {
         for (int j = 0; j < numNodes; ++j) {
-            pbmFile << (adjacencyMatrix[i][j] ? "1 " : "0 ");
+            pbmFile << (adjacencyMatrix[i][j] ? "0 " : "1 ");
         }
         pbmFile << "\n";
     }
 
     pbmFile.close();
 }
-
 
 void Graph::generateCompressedBpm(const std::string& filename) {
 

@@ -3,40 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Random graphs, their forms and more!</title>
+    <title>Graph Visualization</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-
-        main {
-            max-width: 800px;
-            margin: 2rem auto;
-            padding: 1rem;
-            background-color: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-        }
-
-        #graph-container {
-            width: 100%;
-            height: 400px; 
-        }
+        /* Add your CSS styles here */
     </style>
 </head>
 <body>
-    <header>
-        <h1>Graph Visualization</h1>
-    </header>
+    <div id="graph-container"></div>
 
-    <main>
-        <p>Exploring various Random Graphs, their properties and what we can find from it </p>
+    <script>
+        function fetchDataAndDeserialize() {
+            const input = document.getElementById('file-input');
+            const file = input.files[0];
 
-        <div id="graph-container">
-        </div>
-    </main>
+            if (!file) {
+                alert('Please select a file');
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = function (event) {
+                const arrayBuffer = event.target.result;
+                const dataView = new DataView(arrayBuffer);
+
+                // Assuming the first 4 bytes represent the number of nodes (int32)
+                const numNodes = dataView.getInt32(0, true);
+                let offset = 4;
+                
+                const adjacencyMatrix = [];
+
+                // Iterate over rows
+                for (let i = 0; i < numNodes; i++) {
+                    const row = [];
+
+                    // Iterate over columns
+                    for (let j = 0; j < numNodes; j++) {
+                        const value = dataView.getInt8(offset);
+                        row.push(value === 1);
+                        offset += 1;
+                    }
+
+                    adjacencyMatrix.push(row);
+                }
+
+                // Display the adjacency matrix (customize as needed)
+                displayAdjacencyMatrix(adjacencyMatrix);
+            };
+
+            reader.readAsArrayBuffer(file);
+        }
+
+        function displayAdjacencyMatrix(matrix) {
+            const graphContainer = document.getElementById('graph-container');
+            graphContainer.innerHTML = ''; // Clear previous content
+
+            const table = document.createElement('table');
+            table.style.borderCollapse = 'collapse';
+
+            matrix.forEach((row, i) => {
+                const tr = document.createElement('tr');
+
+                row.forEach((value, j) => {
+                    const td = document.createElement('td');
+                    td.style.border = '1px solid black';
+                    td.style.width = '1px';
+                    td.style.height = '1px';
+                    td.style.backgroundColor = value ? 'black' : 'white';
+
+                    tr.appendChild(td);
+                });
+
+                table.appendChild(tr);
+            });
+
+            graphContainer.appendChild(table);
+        }
+    </script>
+
+    <input type="file" id="file-input" accept=".bin">
+    <button onclick="fetchDataAndDeserialize()">Load Graph</button>
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
 </body>
 </html>
