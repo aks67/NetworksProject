@@ -68,7 +68,6 @@ void WattsStrogatzGraph::createRingLattice() {
     }
 }
 
-
 void WattsStrogatzGraph::rewireEdges() {
     double beta = this->beta;
     int numNodes = this->numNodes;
@@ -88,4 +87,39 @@ void WattsStrogatzGraph::rewireEdges() {
         }
     }
 
+}
+
+
+BarabasiAlbertGraph::BarabasiAlbertGraph(int numNodes, int m)
+    : Graph(numNodes), m(m) {
+
+        for (int i = 1; i <= m; i++) {
+            addEdges(0, i);
+        }
+
+        for (int i = m + 1; i < numNodes; i++) {
+            attachNode(i);
+        }
+}
+
+
+void BarabasiAlbertGraph::attachNode(int newNode) {
+    std::vector<int> nodes;
+    
+    for (int i = 0; i < numNodes; i++) {
+        for (int degree = 0; degree < getDegree(i); i++) {
+            nodes.push_back(i);
+        }
+    }
+
+
+    std::random_device rd;
+    std::mt19937 g(rd());
+
+    std::shuffle(nodes.begin(), nodes.end(), g);
+
+    for (int i = 0; i < m; i++) {
+        int targetNode = nodes[i];
+        addEdges(newNode, targetNode);
+    }
 }

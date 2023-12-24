@@ -9,6 +9,7 @@
 #include <ctime>
 #include "Graph.h"
 #include <random>
+#include <algorithm>
 //Graph structure
 
 
@@ -50,5 +51,17 @@ class WattsStrogatzGraph : public Graph {
         void createRingLattice();
         void rewireEdges();
 
+
+};
+
+
+class BarabasiAlbertGraph : public Graph {
+    
+    public:
+        BarabasiAlbertGraph(int numNodes, int m);
+        
+    private:
+        int m;
+        void attachNode(int newNode);
 
 };
