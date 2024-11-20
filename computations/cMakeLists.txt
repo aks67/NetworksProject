@@ -2,8 +2,12 @@ cmake_minimum_required(VERSION 3.10)
 
 project(GraphGenerator)
 
+# Specify C++ version
+set(CMAKE_CXX_STANDARD 17)  # Use 17, 20, or higher as needed
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_CXX_EXTENSIONS OFF)  # Optional: Enforces standard-compliant behavior
 
-
+# Source and header files
 set(SOURCE_FILES
     Graph.cpp
     GraphGeneration.cpp
@@ -15,4 +19,5 @@ set(HEADER_FILES
     GraphGeneration.h
 )
 
+# Add the executable
 add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${HEADER_FILES})

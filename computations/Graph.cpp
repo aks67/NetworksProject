@@ -1,11 +1,19 @@
 #include "Graph.h" 
 #include <iostream>
+#include <string>
 #include <thread>
 
 Graph::Graph(int numNodes) : numNodes(numNodes),  node_degrees(new int[numNodes]()) {
     adjacencyMatrix.resize(numNodes, std::vector<bool>(numNodes, false));
 }
 
+Graph* Graph::askGraphConfig() {
+    int numNodes = 0;
+    std::cout << "Enter the number of nodes: ";
+    std::cin >> numNodes;
+    return new Graph(numNodes);
+
+}
 
 bool Graph::addEdges(int u, int v) {
     
@@ -32,9 +40,12 @@ bool Graph::removeEdges(int u, int v) {
     return false;
 }
 
-
 int Graph::getDegree(int node) {
     return this->node_degrees[node];
+}
+
+int Graph::getNumNodes() {
+    return this->numNodes;
 }
 
 void Graph::printMatrixToTerminal() {
@@ -73,7 +84,7 @@ void Graph::generateBpm(const std::string& filename) {
 
     for (int i = 0; i < numNodes; ++i) {
         for (int j = 0; j < numNodes; ++j) {
-            pbmFile << (adjacencyMatrix[i][j] ? "0 " : "1 ");
+            pbmFile << (adjacencyMatrix[i][j] ? "1 " : "0");
         }
         pbmFile << "\n";
     }
@@ -89,31 +100,38 @@ void Graph::generateCompressedBpm(const std::string& filename) {
         std::cout << "Error in openening the file" << std::endl;
     }
 
-    pbmFile << "P1\n";
+    pbmFile << "P4\n";
     pbmFile << this->numNodes << " " << this->numNodes << "\n";
 
     for (int i = 0; i < this->numNodes; i++) {
-        int count = 0;
-        char currPixel = ' ';
-
+        unsigned char byte = 0;
+        unsigned char bitPos = 0;
+        // rle serialised
         for (int j = 0; j < this->numNodes; j++) {
-            if (this->adjacencyMatrix[i][j] == (currPixel == '1')) {
-                count++;
-            } else {
-                pbmFile << count << currPixel << " ";
-                count = 1;
-                currPixel = (adjacencyMatrix[i][j] ? '1' : '0');
+            if (this->adjacencyMatrix[i][j]) {
+                byte |= (1 << (7 - bitPos));
+            } 
+            bitPos++;
+
+            if (bitPos == 8) {
+                pbmFile.put(byte);
+                byte = 0;
+                bitPos = 0;
             }
         }
 
-        pbmFile << count << currPixel << " \n";
+        if (bitPos != 0) {
+            pbmFile.put(byte);
+        }
     }
+
+    std::cout << "Compressed PBM (P4 format) file generated: " << filename << std::endl;
 
     pbmFile.close();
 
 }
 
-std::vector<std::vector<bool>> Graph::get_matrix() {
+std::vector<std::vector<bool> > Graph::get_matrix() {
 
     return this->adjacencyMatrix;
 }
@@ -155,7 +173,6 @@ void Graph::serialse(const std::string& filename) {
 
     file.close();
 }
-
 
 void Graph::serialseRle(const std::string& filename) {
     std::ofstream file(filename, std::ios::binary | std::ios::out);

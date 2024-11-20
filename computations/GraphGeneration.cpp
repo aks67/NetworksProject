@@ -1,6 +1,11 @@
 #include "GraphGeneration.h"
 #include <random>
 
+/*
+    A better way to handle ask and config set up:
+    move base graph setup up the ladder, and pass down the number
+ */
+
 ErdosRenyiGraph::ErdosRenyiGraph(int numNodes, double probability) 
     : Graph(numNodes), probability(probability) {
     
@@ -15,17 +20,32 @@ ErdosRenyiGraph::ErdosRenyiGraph(int numNodes, double probability)
     }
 }
 
+Graph* ErdosRenyiGraph::askGraphConfig() {
+    Graph* G = Graph::askGraphConfig();
+    double probability = 0.0;
+    std::cout << "Enter the probability: ";
+    std::cin >> probability;
+    std::cout << "selected  "<< probability << std::endl;
+    Graph* builtGraph =  new ErdosRenyiGraph(G->getNumNodes(), probability);
+    delete G;
+    return builtGraph;
+}
 
 NewmanConfigModel::NewmanConfigModel(int numNodes, int numEdges)
     : Graph(numNodes), numEdges(numEdges) {
         
-        this->setNumEdges(numEdges);
+        this->numEdges = numEdges;
         this->createEdges();
-
 }
 
-void NewmanConfigModel::setNumEdges(int numEdges) {
-    this->numEdges = numEdges;
+Graph* NewmanConfigModel::askGraphConfig() {
+    Graph* G = Graph::askGraphConfig();
+    int numEdges = 0;
+    std::cout << "Enter the number of Edges: ";
+    std::cin >> numEdges;
+    Graph* builtGraph = new NewmanConfigModel(G->getNumNodes(), numEdges);
+    delete G;
+    return builtGraph;
 }
 
 void NewmanConfigModel::createEdges() {
@@ -45,15 +65,12 @@ void NewmanConfigModel::createEdges() {
     } 
 }
 
-
-
 WattsStrogatzGraph::WattsStrogatzGraph(int numNodes, int k, double beta) 
     : Graph(numNodes), k(k), beta(beta) {
         
         this->createRingLattice();
         this->rewireEdges();
     }
-
 
 void WattsStrogatzGraph::createRingLattice() {
 
@@ -66,6 +83,24 @@ void WattsStrogatzGraph::createRingLattice() {
             this->addEdges(i, neighbour);
         }
     }
+}
+
+Graph* WattsStrogatzGraph::askGraphConfig() {
+    Graph* G = Graph::askGraphConfig();
+    int k = 0; 
+    double beta = 0;
+    std::cout << "Enter the mean degree: ";
+    std::cin >> k;
+    std::cout << "Enter a parameter Beta (0 < beta < 1): ";
+    std::cin >> beta;
+
+    if (beta > 1 || beta < 0) {
+        beta = 0.5;
+    }
+
+    Graph* builtGraph = new WattsStrogatzGraph(G->getNumNodes(), k, beta);
+    delete G;
+    return builtGraph;
 }
 
 void WattsStrogatzGraph::rewireEdges() {
@@ -89,7 +124,6 @@ void WattsStrogatzGraph::rewireEdges() {
 
 }
 
-
 BarabasiAlbertGraph::BarabasiAlbertGraph(int numNodes, int m)
     : Graph(numNodes), m(m) {
 
@@ -101,7 +135,6 @@ BarabasiAlbertGraph::BarabasiAlbertGraph(int numNodes, int m)
             attachNode(i);
         }
 }
-
 
 void BarabasiAlbertGraph::attachNode(int newNode) {
     std::vector<int> nodes;
@@ -123,3 +156,32 @@ void BarabasiAlbertGraph::attachNode(int newNode) {
         addEdges(newNode, targetNode);
     }
 }
+
+Graph* BarabasiAlbertGraph::askGraphConfig() {
+    Graph* G = Graph::askGraphConfig();
+    int m = 0; 
+    std::cout << "Enter the paramter m: ";
+    std::cin >> m;
+    Graph* builtGraph = new BarabasiAlbertGraph(G->getNumNodes(), m);
+    delete G;
+    return builtGraph;
+}
+
+Graph* Graph::createGraph(const std::string& graphType) {
+    if (graphType == "erG") {
+        return ErdosRenyiGraph::askGraphConfig();
+    }
+    else if (graphType == "nG") {
+        return  NewmanConfigModel::askGraphConfig();
+    }
+    else if (graphType == "baG") {
+        return BarabasiAlbertGraph::askGraphConfig();
+    }
+    else if (graphType == "wG") {
+        return WattsStrogatzGraph::askGraphConfig();
+    } else {
+        std::cout << "Invalid graph type selected." << std::endl;
+        return nullptr;
+    }
+}
+
