@@ -11,7 +11,9 @@ class Graph {
 
         static Graph* createGraph(const std::string& graphType);
 
-        bool addEdges(int u, int v) ;
+        bool addEdges(int u, int v);
+
+        bool addEdgesThreadSafe(int u, int v);
 
         bool removeEdges(int u, int v);
 
@@ -44,11 +46,12 @@ class Graph {
         ~Graph() {
             delete[] node_degrees;
         }
+        
     protected:
         int numNodes;
         int* node_degrees;
+        std::mutex graphMutex; 
         std::vector<std::vector<bool> > adjacencyMatrix;
 };
-
 
 #endif

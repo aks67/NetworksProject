@@ -16,16 +16,29 @@ Graph* Graph::askGraphConfig() {
 }
 
 bool Graph::addEdges(int u, int v) {
-    
     if (( u >= 0 && u < numNodes) && (v >= 0 && v < numNodes)) {
         adjacencyMatrix[u][v] = true;
         adjacencyMatrix[v][u] = true;
-
         node_degrees[u]++;
         node_degrees[v]++;
         return true;
     }
 
+    return false;
+}
+
+bool Graph::addEdgesThreadSafe(int u, int v) {
+    /*
+        A thread safe version of add edges, lock the graph 
+    */
+    std::unique_lock<std::mutex> lock(graphMutex);
+    if (( u >= 0 && u < numNodes) && (v >= 0 && v < numNodes)) {
+        adjacencyMatrix[u][v] = true;
+        adjacencyMatrix[v][u] = true;
+        node_degrees[u]++;
+        node_degrees[v]++;
+        return true;
+    }
     return false;
 }
 

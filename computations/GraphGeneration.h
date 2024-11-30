@@ -16,8 +16,11 @@
 class ErdosRenyiGraph : public Graph {
     
     public:
-        ErdosRenyiGraph(int numNodes, double probability);
+        ErdosRenyiGraph(int numNodes, double probability, bool multithreaded);
         static Graph* askGraphConfig();
+    protected:
+        void generateGraph(int numNodes, double probability);
+        void generateMultiThreadedGraph(int numNodes, double probability);
     private:
         double probability = 0;
 };
@@ -55,5 +58,6 @@ class BarabasiAlbertGraph : public Graph {
     private:
         int m;
         void attachNode(int newNode);
+        void attachNodeParallel(int newNode);
 
 };

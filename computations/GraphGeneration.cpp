@@ -1,14 +1,25 @@
 #include "GraphGeneration.h"
 #include <random>
+#include <thread>
 
 /*
     A better way to handle ask and config set up:
     move base graph setup up the ladder, and pass down the number
  */
 
-ErdosRenyiGraph::ErdosRenyiGraph(int numNodes, double probability) 
-    : Graph(numNodes), probability(probability) {
-    
+ErdosRenyiGraph::ErdosRenyiGraph(int numNodes, double probability, bool multithreaded)
+        : Graph(numNodes), probability(probability) {
+        
+        if (!multithreaded) {
+            generateGraph(numNodes, probability);
+            return;
+        }
+        generateMultiThreadedGraph(numNodes, probability);
+    }
+
+
+void ErdosRenyiGraph::generateGraph(int numNodes, double probability) {
+
     srand(static_cast<unsigned int>(time(nullptr)));
 
     for (int i = 0; i < numNodes; ++i) {
@@ -20,13 +31,61 @@ ErdosRenyiGraph::ErdosRenyiGraph(int numNodes, double probability)
     }
 }
 
+void ErdosRenyiGraph::generateMultiThreadedGraph(int numNodes, double probability) {
+
+
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::mt19937 generator(seed);
+
+    int numThreads = std::thread::hardware_concurrency();
+   
+    if (!numThreads) {
+        numThreads = 4;
+    }
+    int rowsPerThread = numNodes/numThreads;
+    std::vector<std::thread> threads;
+    std::cout << "number of threads: " << numThreads << " Rows per thread: " << rowsPerThread << std::endl;
+    int totalEdges = numNodes * (numNodes - 1) / 2;
+    
+    for (int t = 0; t < numThreads; t++) {
+        int startRow = t * rowsPerThread;
+        int endRow = (t == numThreads - 1) ? numNodes : startRow + rowsPerThread;
+        
+        threads.emplace_back([this,t, totalEdges, numThreads, startRow, endRow, probability, &generator, numNodes, seed]() {
+            std::mt19937 generator(seed + startRow);
+            std::uniform_real_distribution<double> distribution(0.0, 1.0);
+            int startEdge = t * totalEdges / numThreads;
+            int endEdge = (t + 1) * totalEdges / numThreads;
+
+            for (int i = startRow; i < endRow; i++) {
+                for (int j = i + 1; j < numNodes; j++) {
+                    if (distribution(generator) < probability) {
+                        this->addEdges(i, j);
+                    }
+                }
+            }
+                      
+        });
+    }
+
+
+    for (auto& thread : threads) {
+        thread.join();
+    }
+
+}
+
 Graph* ErdosRenyiGraph::askGraphConfig() {
     Graph* G = Graph::askGraphConfig();
     double probability = 0.0;
+    bool multiThreaded = false;
     std::cout << "Enter the probability: ";
     std::cin >> probability;
     std::cout << "selected  "<< probability << std::endl;
-    Graph* builtGraph =  new ErdosRenyiGraph(G->getNumNodes(), probability);
+    std::cout << "Multi-threaded?";
+    std::cin >> multiThreaded;
+    std::cout << "now building: " << "erdosRenyi graph with " << G->getNumNodes() << " multi-threaded: " << multiThreaded << "\n";
+    Graph* builtGraph =  new ErdosRenyiGraph(G->getNumNodes(), probability, multiThreaded);
     delete G;
     return builtGraph;
 }
@@ -170,7 +229,7 @@ Graph* BarabasiAlbertGraph::askGraphConfig() {
 Graph* Graph::createGraph(const std::string& graphType) {
     if (graphType == "erG") {
         return ErdosRenyiGraph::askGraphConfig();
-    }
+    } 
     else if (graphType == "nG") {
         return  NewmanConfigModel::askGraphConfig();
     }
